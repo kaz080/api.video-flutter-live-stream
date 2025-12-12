@@ -2,6 +2,8 @@ package video.api.flutter.livestream.utils
 
 import android.content.Context
 import android.content.DialogInterface
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraManager
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 
@@ -37,5 +39,95 @@ fun Context.showDialog(
             }
         }
         .show()
+}
+
+/**
+ * Get list of front cameras
+ */
+val Context.frontCameraList: List<String>
+    get() {
+        val cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        val cameraIds = cameraManager.cameraIdList
+        return cameraIds.filter { cameraId ->
+            try {
+                val characteristics = cameraManager.getCameraCharacteristics(cameraId)
+                characteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT
+            } catch (e: Exception) {
+                false
+            }
+        }
+    }
+
+/**
+ * Get list of back cameras
+ */
+val Context.backCameraList: List<String>
+    get() {
+        val cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        val cameraIds = cameraManager.cameraIdList
+        return cameraIds.filter { cameraId ->
+            try {
+                val characteristics = cameraManager.getCameraCharacteristics(cameraId)
+                characteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_BACK
+            } catch (e: Exception) {
+                false
+            }
+        }
+    }
+
+/**
+ * Get list of external cameras
+ */
+val Context.externalCameraList: List<String>
+    get() {
+        val cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        val cameraIds = cameraManager.cameraIdList
+        return cameraIds.filter { cameraId ->
+            try {
+                val characteristics = cameraManager.getCameraCharacteristics(cameraId)
+                characteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_EXTERNAL
+            } catch (e: Exception) {
+                false
+            }
+        }
+    }
+
+/**
+ * Check if camera is front camera
+ */
+fun Context.isFrontCamera(cameraId: String): Boolean {
+    val cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+    return try {
+        val characteristics = cameraManager.getCameraCharacteristics(cameraId)
+        characteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT
+    } catch (e: Exception) {
+        false
+    }
+}
+
+/**
+ * Check if camera is back camera
+ */
+fun Context.isBackCamera(cameraId: String): Boolean {
+    val cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+    return try {
+        val characteristics = cameraManager.getCameraCharacteristics(cameraId)
+        characteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_BACK
+    } catch (e: Exception) {
+        false
+    }
+}
+
+/**
+ * Check if camera is external camera
+ */
+fun Context.isExternalCamera(cameraId: String): Boolean {
+    val cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+    return try {
+        val characteristics = cameraManager.getCameraCharacteristics(cameraId)
+        characteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_EXTERNAL
+    } catch (e: Exception) {
+        false
+    }
 }
 

@@ -1,31 +1,32 @@
 package video.api.flutter.livestream.utils
 
+import android.media.AudioFormat
 import android.util.Size
-import io.github.thibaultbee.streampack.data.AudioConfig
-import io.github.thibaultbee.streampack.data.VideoConfig
+import io.github.thibaultbee.streampack.core.elements.encoders.AudioCodecConfig
+import io.github.thibaultbee.streampack.core.elements.encoders.VideoCodecConfig
 
-
-fun Map<String, Any>.toVideoConfig(): VideoConfig {
-    return VideoConfig(
+fun Map<String, Any>.toVideoConfig(): VideoCodecConfig {
+    // VideoCodecConfig constructor is internal, but uses startBitrate parameter
+    @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
+    return VideoCodecConfig(
         startBitrate = this["bitrate"] as Int,
         resolution = (this["resolution"] as String).toResolution(),
         fps = this["fps"] as Int
     )
 }
 
-fun Map<String, Any>.toAudioConfig(): AudioConfig {
-    return AudioConfig(
-        startBitrate = this["bitrate"] as Int,
+fun Map<String, Any>.toAudioConfig(): AudioCodecConfig {
+    val channelConfig = if (this["channel"] == "stereo") {
+        AudioFormat.CHANNEL_IN_STEREO
+    } else {
+        AudioFormat.CHANNEL_IN_MONO
+    }
+
+    // AudioCodecConfig constructor does not have bitrate parameter
+    @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
+    return AudioCodecConfig(
         sampleRate = this["sampleRate"] as Int,
-        channelConfig = AudioConfig.getChannelConfig(
-            if (this["channel"] == "stereo") {
-                2
-            } else {
-                1
-            }
-        ),
-        enableNoiseSuppressor = this["enableNoiseSuppressor"] as Boolean,
-        enableEchoCanceler = this["enableEchoCanceler"] as Boolean
+        channelConfig = channelConfig
     )
 }
 
